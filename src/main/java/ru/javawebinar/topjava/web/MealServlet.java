@@ -2,7 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.storage.MapMealStorage;
+import ru.javawebinar.topjava.storage.MemoryMealStorage;
 import ru.javawebinar.topjava.storage.MealStorage;
 import ru.javawebinar.topjava.util.MealsUtil;
 
@@ -25,43 +25,41 @@ public class MealServlet extends HttpServlet {
 
     @Override
     public void init() {
-        storage = new MapMealStorage();
+        storage = new MemoryMealStorage();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String forward;
         String action = request.getParameter("action");
-        if (action == null) {
-            forward = MEALS_LIST;
-            request.setAttribute("meals", MealsUtil.getMealsTo(storage.getAll()));
-            request.getRequestDispatcher(forward).forward(request, response);
-            log.debug("forward to " + forward);
-            return;
-        }
-
+        action = action == null ? "" : action;
         switch (action) {
             case "add":
                 Meal meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 0);
                 request.setAttribute("meal", meal);
                 forward = ADD_UPDATE;
-                log.debug("add and forward to " + forward);
+                log.debug("add and forward to {}.", forward);
                 break;
             case "update":
-                request.setAttribute("meal", storage.get(Integer.parseInt(request.getParameter("id"))));
+                request.setAttribute("meal", storage.get(getId(request)));
                 forward = ADD_UPDATE;
-                log.debug("update and forward to " + forward);
+                log.debug("update and forward to {}.", forward);
                 break;
             case "delete":
-                storage.delete(Integer.parseInt(request.getParameter("id")));
+                storage.delete(getId(request));
                 response.sendRedirect("meals");
                 log.debug("delete and redirect to meals list");
                 return;
             default:
                 forward = MEALS_LIST;
+                request.setAttribute("meals", MealsUtil.getMealsTo(storage.getAll(), MealsUtil.CALORIES_PER_DAY));
+                log.debug("forward to meals list");
         }
-        request.setAttribute("action", action);
         request.getRequestDispatcher(forward).forward(request, response);
+    }
+
+    private int getId(HttpServletRequest request) {
+        return Integer.parseInt(request.getParameter("id"));
     }
 
     @Override
@@ -69,20 +67,16 @@ public class MealServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String idParam = request.getParameter("id");
         Integer id = idParam.isEmpty() ? null : Integer.parseInt(idParam);
-        String action = request.getParameter("action");
-        LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("datetime"));
-        String description = request.getParameter("description");
-        int calories = Integer.parseInt(request.getParameter("calories"));
-        Meal meal = new Meal(id, dateTime, description, calories);
-        switch (action) {
-            case "add":
-                storage.add(meal);
-                log.debug("add meal");
-                break;
-            case "update":
-                storage.update(meal);
-                log.debug("update meal id = " + meal.getId());
-                break;
+        Meal meal = new Meal(id,
+                LocalDateTime.parse(request.getParameter("datetime")),
+                request.getParameter("description"),
+                Integer.parseInt(request.getParameter("calories")));
+        if (id == null) {
+            log.debug("add meal");
+            storage.add(meal);
+        } else {
+            log.debug("update meal id = {}.", meal.getId());
+            storage.update(meal);
         }
         response.sendRedirect("meals");
     }

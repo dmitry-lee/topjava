@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +15,6 @@ import java.util.stream.Collectors;
 public class MealsUtil {
 
     public static final int CALORIES_PER_DAY = 2000;
-
-    public static void main(String[] args) {
-        List<Meal> meals = getTestMeals();
-
-        List<MealTo> mealsTo = filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), CALORIES_PER_DAY);
-        mealsTo.forEach(System.out::println);
-    }
 
     public static List<Meal> getTestMeals() {
         return Arrays.asList(
@@ -36,8 +28,8 @@ public class MealsUtil {
         );
     }
 
-    public static List<MealTo> getMealsTo(List<Meal> meals) {
-        return filteredByStreams(meals, LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY);
+    public static List<MealTo> getMealsTo(List<Meal> meals, int caloriesPerDay) {
+        return filteredByStreams(meals, LocalTime.MIN, LocalTime.MAX, caloriesPerDay);
     }
 
     public static List<MealTo> filteredByStreams(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
