@@ -21,10 +21,8 @@ public class MemoryMealStorage implements MealStorage {
     @Override
     public Meal add(Meal meal) {
         meal.setId(idCounter.incrementAndGet());
-        synchronized (this) {
-            storage.put(meal.getId(), meal);
-            return storage.get(meal.getId());
-        }
+        storage.put(meal.getId(), meal);
+        return meal;
     }
 
     @Override
@@ -33,9 +31,8 @@ public class MemoryMealStorage implements MealStorage {
     }
 
     @Override
-    public synchronized Meal update(Meal meal) {
-        storage.replace(meal.getId(), meal);
-        return storage.get(meal.getId());
+    public Meal update(Meal meal) {
+        return storage.replace(meal.getId(), meal) == null ? null : meal;
     }
 
     @Override
