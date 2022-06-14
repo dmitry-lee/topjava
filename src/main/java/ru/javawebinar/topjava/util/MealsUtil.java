@@ -20,10 +20,14 @@ public class MealsUtil {
     public static final int USER_1_ID = 2;
 
     public static final List<Meal> meals = Arrays.asList(
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500, ADMIN_ID),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000, ADMIN_ID),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500, ADMIN_ID),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100,USER_1_ID),
+            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак (Admin)", 500, ADMIN_ID),
+            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед (Admin)", 1000, ADMIN_ID),
+            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин (Admin)", 500, ADMIN_ID),
+            new Meal(LocalDateTime.of(2020, Month.JANUARY, 28, 20, 0), "CheatMeal (Admin)", 2100, ADMIN_ID),
+            new Meal(LocalDateTime.of(2020, Month.JANUARY, 29, 10, 0), "Завтрак", 500, USER_1_ID),
+            new Meal(LocalDateTime.of(2020, Month.JANUARY, 29, 13, 0), "Обед", 1000, USER_1_ID),
+            new Meal(LocalDateTime.of(2020, Month.JANUARY, 29, 20, 0), "Ужин", 400, USER_1_ID),
+            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100, USER_1_ID),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000, USER_1_ID),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500, USER_1_ID),
             new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410, USER_1_ID)

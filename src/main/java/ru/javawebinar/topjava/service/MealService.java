@@ -8,6 +8,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNotBelongsToUser;
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
+
 @Service
 public class MealService {
 
@@ -17,23 +20,27 @@ public class MealService {
         this.repository = repository;
     }
 
-    public Meal save(Meal meal, int userId) {
+    public Meal create(Meal meal, int userId) {
         return repository.save(meal, userId);
     }
 
-    public boolean delete(int id, int userId){
-        return repository.delete(id, userId);
+    public void update(Meal meal, int userId) {
+        checkNotBelongsToUser(checkNotFoundWithId(meal, meal.getId()), userId);
     }
 
-    public Meal get(int id, int userId){
-        return repository.get(id, userId);
+    public void delete(int id, int userId) {
+        checkNotFoundWithId(repository.delete(id, userId), id);
     }
 
-    public List<Meal> getAll(int userId){
+    public Meal get(int id, int userId) {
+        return checkNotBelongsToUser(checkNotFoundWithId(repository.get(id, userId), id), userId);
+    }
+
+    public List<Meal> getAll(int userId) {
         return new ArrayList<>(repository.getAll(userId));
     }
 
-    public List<Meal> getAll(int userId, LocalDate startDate, LocalDate endDate) {
-        return new ArrayList<>(repository.getAll(userId, startDate, endDate));
+    public List<Meal> getAllFiltered(int userId, LocalDate startDate, LocalDate endDate) {
+        return new ArrayList<>(repository.getAllFiltered(userId, startDate, endDate));
     }
 }

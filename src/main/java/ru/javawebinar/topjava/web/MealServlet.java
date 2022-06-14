@@ -4,10 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.util.StringUtils;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.repository.inmemory.InMemoryMealRepository;
-import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import javax.servlet.ServletException;
@@ -21,18 +19,24 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-import static ru.javawebinar.topjava.web.SecurityUtil.*;
+import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
+
+    private ConfigurableApplicationContext appCtx;
 
     private MealRestController mealRestController;
 
     @Override
     public void init() {
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-            mealRestController = appCtx.getBean(MealRestController.class);
-        }
+        appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
+        mealRestController = appCtx.getBean(MealRestController.class);
+    }
+
+    @Override
+    public void destroy() {
+        appCtx.close();
     }
 
     @Override
@@ -46,7 +50,11 @@ public class MealServlet extends HttpServlet {
                 Integer.parseInt(request.getParameter("calories")));
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        mealRestController.save(meal);
+        if (meal.isNew()) {
+            mealRestController.create(meal);
+        } else {
+            mealRestController.update(meal, meal.getId());
+        }
         response.sendRedirect("meals");
     }
 
@@ -69,19 +77,18 @@ public class MealServlet extends HttpServlet {
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
+            case "filter":
+                request.setAttribute("meals", mealRestController.getAllFiltered(
+                        StringUtils.hasText(request.getParameter("startDate")) ? LocalDate.parse(request.getParameter("startDate")) : LocalDate.MIN,
+                        StringUtils.hasText(request.getParameter("endDate")) ? LocalDate.parse(request.getParameter("endDate")) : LocalDate.MAX,
+                        StringUtils.hasText(request.getParameter("startTime")) ? LocalTime.parse(request.getParameter("startTime")) : LocalTime.MIN,
+                        StringUtils.hasText(request.getParameter("endTime")) ? LocalTime.parse(request.getParameter("endTime")) : LocalTime.MAX));
+                request.getRequestDispatcher("/meals.jsp").forward(request, response);
+                break;
             case "all":
             default:
                 log.info("getAll");
-                String startDateParam = request.getParameter("startDate");
-                LocalDate startDate = startDateParam == null || startDateParam.isEmpty() ? LocalDate.MIN : LocalDate.parse(startDateParam);
-                String endDateParam = request.getParameter("startDate");
-                LocalDate endDate = endDateParam == null || endDateParam.isEmpty() ? LocalDate.MAX : LocalDate.parse(endDateParam);
-                String startTimeParam = request.getParameter("startTime");
-                LocalTime startTime = startTimeParam == null || startTimeParam.isEmpty() ? LocalTime.MIN : LocalTime.parse(startTimeParam);
-                String endTimeParam = request.getParameter("endTime");
-                LocalTime endTime = endTimeParam == null || endTimeParam.isEmpty() ? LocalTime.MAX : LocalTime.parse(endTimeParam);
-                request.setAttribute("meals",
-                        MealsUtil.getFilteredTos(mealRestController.getAll(startDate, endDate), MealsUtil.DEFAULT_CALORIES_PER_DAY, startTime, endTime));
+                request.setAttribute("meals", mealRestController.getAll());
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
