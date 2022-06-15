@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Repository
@@ -45,18 +46,26 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        return repository.get(id);
+        return repository.values().stream()
+                .filter(meal -> meal.getId().equals(id) && meal.getUserId().equals(userId))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return getAllFiltered(userId, LocalDate.MIN, LocalDate.MAX);
+        return getAllFilteredByPredicate(userId, meal -> true);
     }
 
     @Override
     public List<Meal> getAllFiltered(int userId, LocalDate startDate, LocalDate endDate) {
+        return getAllFilteredByPredicate(userId, meal -> DateTimeUtil.isBetweenClosed(meal.getDate(), startDate, endDate));
+    }
+
+    public List<Meal> getAllFilteredByPredicate(int userId, Predicate<Meal> filter) {
         return repository.values().stream()
-                .filter(meal -> meal.getUserId().equals(userId) && DateTimeUtil.isBetweenClosed(meal.getDate(), startDate, endDate))
+                .filter(meal -> meal.getUserId().equals(userId))
+                .filter(filter)
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                 .collect(Collectors.toList());
     }
