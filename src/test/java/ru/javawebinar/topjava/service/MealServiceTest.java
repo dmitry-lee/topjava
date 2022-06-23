@@ -39,23 +39,33 @@ public class MealServiceTest {
 
     @Test
     public void get() {
-        assertMatch(mealService.get(userMeal_1.getId(), USER_ID), userMeal_1);
+        assertMatch(mealService.get(userMeal1.getId(), USER_ID), userMeal1);
+    }
+
+    @Test
+    public void getNotExist() {
+        assertThrows(NotFoundException.class, () -> mealService.get(99999, USER_ID));
     }
 
     @Test
     public void getWithForeignUserId() {
-        assertThrows(NotFoundException.class, () -> mealService.get(userMeal_1.getId(), ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> mealService.get(userMeal1.getId(), ADMIN_ID));
     }
 
     @Test
     public void delete() {
-        mealService.delete(userMeal_1.getId(), USER_ID);
-        assertThrows(NotFoundException.class, () -> mealService.get(userMeal_1.getId(), USER_ID));
+        mealService.delete(userMeal1.getId(), USER_ID);
+        assertThrows(NotFoundException.class, () -> mealService.get(userMeal1.getId(), USER_ID));
+    }
+
+    @Test
+    public void deleteNotExist() {
+        assertThrows(NotFoundException.class, () -> mealService.delete(9999, USER_ID));
     }
 
     @Test
     public void deleteWithForeignUserId() {
-        assertThrows(NotFoundException.class, () -> mealService.delete(userMeal_1.getId(), ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> mealService.delete(userMeal1.getId(), ADMIN_ID));
     }
 
     @Test
@@ -90,13 +100,18 @@ public class MealServiceTest {
     @Test
     public void duplicateDateTimeCreate() {
         assertThrows(DataAccessException.class, () -> mealService.create(new Meal(
-                userMeal_2.getDateTime(),
+                userMeal2.getDateTime(),
                 "description", 500), USER_ID));
     }
 
     @Test
     public void getFiltered() {
-        assertMatch(mealService.getBetweenInclusive(userMeal_1.getDate(), userMeal_3.getDate(), USER_ID),
-                Arrays.asList(userMeal_3, userMeal_2, userMeal_1));
+        assertMatch(mealService.getBetweenInclusive(userMeal1.getDate(), userMeal3.getDate(), USER_ID),
+                Arrays.asList(userMeal3, userMeal2, userMeal1));
+    }
+
+    @Test
+    public void getFilteredNullDates() {
+        assertMatch(mealService.getBetweenInclusive(null, null, USER_ID), userMeals);
     }
 }

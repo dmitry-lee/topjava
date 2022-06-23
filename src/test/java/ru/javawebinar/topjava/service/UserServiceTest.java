@@ -14,9 +14,11 @@ import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertThrows;
+import static ru.javawebinar.topjava.TestUtil.assertMatchIgnoringFields;
 import static ru.javawebinar.topjava.UserTestData.*;
 
 @ContextConfiguration({
@@ -42,8 +44,8 @@ public class UserServiceTest {
         Integer newId = created.getId();
         User newUser = getNew();
         newUser.setId(newId);
-        assertMatch(created, newUser);
-        assertMatch(service.get(newId), newUser);
+        assertMatchIgnoringFields(created, newUser, ignoringFields);
+        assertMatchIgnoringFields(service.get(newId), newUser, ignoringFields);
     }
 
     @Test
@@ -66,7 +68,7 @@ public class UserServiceTest {
     @Test
     public void get() {
         User user = service.get(USER_ID);
-        assertMatch(user, UserTestData.user);
+        assertMatchIgnoringFields(user, UserTestData.user, ignoringFields);
     }
 
     @Test
@@ -77,19 +79,19 @@ public class UserServiceTest {
     @Test
     public void getByEmail() {
         User user = service.getByEmail("admin@gmail.com");
-        assertMatch(user, admin);
+        assertMatchIgnoringFields(user, admin, ignoringFields);
     }
 
     @Test
     public void update() {
         User updated = getUpdated();
         service.update(updated);
-        assertMatch(service.get(USER_ID), getUpdated());
+        assertMatchIgnoringFields(service.get(USER_ID), getUpdated(), ignoringFields);
     }
 
     @Test
     public void getAll() {
         List<User> all = service.getAll();
-        assertMatch(all, admin, guest, user);
+        assertMatchIgnoringFields(all, Arrays.asList(admin, guest, user), ignoringFields);
     }
 }
