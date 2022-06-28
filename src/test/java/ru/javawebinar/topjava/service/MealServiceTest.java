@@ -1,7 +1,14 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExternalResource;
+import org.junit.rules.Stopwatch;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,6 +20,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -29,6 +37,27 @@ public class MealServiceTest {
 
     @Autowired
     private MealService service;
+
+    public static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+
+    public static long duration = 0;
+
+    @ClassRule
+    public static final ExternalResource summary = new ExternalResource() {
+        @Override
+        protected void after() {
+            log.info(String.format("Overall test duration - %d ms\n", TimeUnit.NANOSECONDS.toMillis(duration)));
+        }
+    };
+
+    @Rule
+    public final Stopwatch STOPWATCH = new Stopwatch() {
+        @Override
+        protected void finished(long nanos, Description description) {
+            log.info(String.format("%s - %d ms\n", description.getDisplayName(), TimeUnit.NANOSECONDS.toMillis(nanos)));
+            duration += nanos;
+        }
+    };
 
     @Test
     public void delete() {
