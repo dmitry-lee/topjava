@@ -40,22 +40,23 @@ public class MealServiceTest {
 
     public static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
 
-    public static long duration = 0;
+    public static StringBuilder summaryBuilder = new StringBuilder("Tests summary:\n");
 
     @ClassRule
     public static final ExternalResource summary = new ExternalResource() {
         @Override
         protected void after() {
-            log.info(String.format("Overall test duration - %d ms\n", TimeUnit.NANOSECONDS.toMillis(duration)));
+            log.info(summaryBuilder.toString());
         }
     };
 
     @Rule
-    public final Stopwatch STOPWATCH = new Stopwatch() {
+    public final Stopwatch stopwatch = new Stopwatch() {
         @Override
         protected void finished(long nanos, Description description) {
-            log.info(String.format("%s - %d ms\n", description.getDisplayName(), TimeUnit.NANOSECONDS.toMillis(nanos)));
-            duration += nanos;
+            String testResult = String.format("%s - %d ms\n", description.getDisplayName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+            summaryBuilder.append(testResult);
+            log.info(testResult);
         }
     };
 
