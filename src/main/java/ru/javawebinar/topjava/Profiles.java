@@ -9,7 +9,7 @@ public class Profiles {
             JPA = "jpa",
             DATAJPA = "datajpa";
 
-    public static final String REPOSITORY_IMPLEMENTATION = DATAJPA;
+    public static final String REPOSITORY_IMPLEMENTATION = JPA;
 
     public static final String
             POSTGRES_DB = "postgres",
@@ -26,7 +26,7 @@ public class Profiles {
         }
     }
 
-    public static void SetSpringActiveProfiles() {
+    public static void setSpringActiveProfiles() {
         System.setProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME, getActiveDbProfile() + "," + REPOSITORY_IMPLEMENTATION);
     }
 }

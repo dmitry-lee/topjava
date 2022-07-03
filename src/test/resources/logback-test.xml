@@ -1,5 +1,7 @@
 <configuration>
 
+    <logger name="org.springframework.orm.jpa" level="debug"/>
+
     <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
         <resetJUL>true</resetJUL>
     </contextListener>

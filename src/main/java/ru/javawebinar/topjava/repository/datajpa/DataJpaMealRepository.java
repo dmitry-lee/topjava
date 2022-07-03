@@ -4,8 +4,6 @@ import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,9 +14,6 @@ public class DataJpaMealRepository implements MealRepository {
 
     private final CrudUserRepository crudUserRepository;
 
-    @PersistenceContext
-    private EntityManager em;
-
     public DataJpaMealRepository(CrudMealRepository crudRepository, CrudUserRepository crudUserRepository) {
         this.crudRepository = crudRepository;
         this.crudUserRepository = crudUserRepository;
@@ -26,8 +21,8 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     public Meal save(Meal meal, int userId) {
-        meal.setUser(crudUserRepository.getReferenceById(userId));
         if (meal.isNew() || (get(meal.id(), userId) != null)) {
+            meal.setUser(crudUserRepository.getReferenceById(userId));
             return crudRepository.save(meal);
         }
         return null;
@@ -40,8 +35,8 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        Meal meal = crudRepository.findById(id).orElse(null);
-        return meal != null && meal.getUser().getId() == userId ? meal : null;
+        return crudRepository.findById(id).filter(m -> m.getUser().getId() == userId).orElse(null);
+
     }
 
     @Override
