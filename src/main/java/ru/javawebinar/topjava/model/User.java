@@ -127,6 +127,10 @@ public class User extends AbstractNamedEntity {
         return password;
     }
 
+    public List<Meal> getMeals() {
+        return meals;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -137,9 +141,5 @@ public class User extends AbstractNamedEntity {
                 ", roles=" + roles +
                 ", caloriesPerDay=" + caloriesPerDay +
                 '}';
-    }
-
-    public List<Meal> getMeals() {
-        return meals;
     }
 }

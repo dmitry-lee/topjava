@@ -29,9 +29,12 @@ public abstract class AbstractServiceTest {
 
     private static final StringBuilder results = new StringBuilder();
 
+    public static String testName;
+
     @AfterClass
     public static void printResult() {
         log.info("\n---------------------------------" +
+                "\n" + testName +
                 "\nTest                 Duration, ms" +
                 "\n---------------------------------" +
                 results +
@@ -44,8 +47,12 @@ public abstract class AbstractServiceTest {
     public final Stopwatch stopwatch = new Stopwatch() {
         @Override
         protected void finished(long nanos, Description description) {
+            String name = description.getTestClass().getSimpleName();
+            if (testName == null || !testName.equals(name)) {
+                testName = name;
+            }
             String result = String.format("\n%-25s %7d", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
-            results.append(result).append("  ").append(AbstractServiceTest.this.getClass().getSimpleName());
+            results.append(result);
             log.info(result + " ms\n");
         }
     };

@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava;
 
-import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.util.ClassUtils;
 
 public class Profiles {
@@ -24,9 +23,5 @@ public class Profiles {
         } else {
             throw new IllegalStateException("Could not find DB driver");
         }
-    }
-
-    public static void setSpringActiveProfiles() {
-        System.setProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME, getActiveDbProfile() + "," + REPOSITORY_IMPLEMENTATION);
     }
 }
