@@ -3,8 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <header>
-    <c:set var="ctxPath" value="${pageContext.request.contextPath}"/>
-    <a href="${ctxPath}/meals"><spring:message code="app.title"/></a> | <a href="${ctxPath}/users"><spring:message
+    <a href="meals"><spring:message code="app.title"/></a> | <a href="users"><spring:message
         code="user.title"/></a> |
-    <a href="${ctxPath}"><spring:message code="app.home"/></a>
+    <a href=""><spring:message code="app.home"/></a>
 </header>

@@ -29,13 +29,8 @@ public class JdbcUserRepository implements UserRepository {
             int id = rs.getInt("id");
             User user = result.get(id);
             if (user == null) {
-                user = new User(rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getInt("calories_per_day"),
-                        rs.getBoolean("enabled"),
-                        rs.getDate("registered"), new HashSet<>());
+                user = ROW_MAPPER.mapRow(rs, rs.getRow());
+                user.setRoles(new HashSet<>());
                 result.put(id, user);
             }
             String role = rs.getString("role");
@@ -85,8 +80,8 @@ public class JdbcUserRepository implements UserRepository {
         return user;
     }
 
-    private int[][] batchInsertRoles(Set<Role> roles, int userId) {
-        return jdbcTemplate.batchUpdate(
+    private void batchInsertRoles(Set<Role> roles, int userId) {
+        jdbcTemplate.batchUpdate(
                 "INSERT INTO user_roles (user_id, role) VALUES (?,?)",
                 roles,
                 roles.size(),
