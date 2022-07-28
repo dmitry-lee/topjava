@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.web.meal;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -7,15 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.to.MealTo;
-import ru.javawebinar.topjava.util.DateTimeUtil;
 
 import java.net.URI;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
-import static ru.javawebinar.topjava.util.DateTimeUtil.*;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
 @RestController
 @RequestMapping(value = MealRestController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -59,13 +57,10 @@ public class MealRestController extends AbstractMealController {
     }
 
     @GetMapping("/filter")
-    public List<MealTo> getBetween(@RequestParam String startDate,
-                                   @RequestParam(required = false) String startTime,
-                                   @RequestParam String endDate,
-                                   @RequestParam(required = false) String endTime) {
-        return super.getBetween(parseLocalDateTime(startDate),
-                parseLocalTime(startTime),
-                parseLocalDateTime(endDate),
-                parseLocalTime(endTime));
+    public List<MealTo> getBetween(@RequestParam(required = false) @DateTimeFormat(iso = DATE_TIME) LocalDateTime startDate,
+                                   @RequestParam(required = false) @DateTimeFormat(iso = DATE_TIME) LocalDateTime startTime,
+                                   @RequestParam(required = false) @DateTimeFormat(iso = DATE_TIME) LocalDateTime endDate,
+                                   @RequestParam(required = false) @DateTimeFormat(iso = DATE_TIME) LocalDateTime endTime) {
+        return super.getBetween(startDate.toLocalDate(), startTime.toLocalTime(), endDate.toLocalDate(), endTime.toLocalTime());
     }
 }
