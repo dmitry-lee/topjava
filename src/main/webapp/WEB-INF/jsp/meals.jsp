@@ -14,7 +14,7 @@
         <h3 class="text-center"><spring:message code="meal.title"/></h3>
         <div class="card border-dark">
             <div class="card-body pb-0">
-                <form method="get" action="meals/filter">
+                <form id="filter">
                     <div class="row">
                         <div class="col-2">
                             <label for="startDate"><spring:message code="meal.startDate"/>:</label>
@@ -26,7 +26,7 @@
                             <input class="form-control" type="date" name="endDate" id="endDate"
                                    value="${param.endDate}">
                         </div>
-                        <div class="offset-3">
+                        <div class="offset-2 col-3">
                             <label for="startTime"><spring:message code="meal.startTime"/>:</label>
                             <input class="form-control" type="time" name="startTime" id="startTime"
                                    value="${param.startTime}">
