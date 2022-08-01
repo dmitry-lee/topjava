@@ -4,7 +4,7 @@ const userAjaxUrl = "admin/users/";
 const ctx = {
     ajaxUrl: userAjaxUrl,
     updateTable: function () {
-        $get(userAjaxUrl, updateTableByData);
+        $.get(userAjaxUrl, updateTableByData);
     }
 };
 
@@ -28,6 +28,10 @@ function enable(chkbox, id) {
 $(function () {
     makeEditable(
         $("#datatable").DataTable({
+            "ajax": {
+                "url": ctx.ajaxUrl,
+                "dataSrc": ""
+            },
             "paging": false,
             "info": true,
             "columns": [
@@ -44,7 +48,7 @@ $(function () {
                     "data": "enabled",
                     "render": function (data, type, row) {
                         if (type === "display") {
-                            return "<input type='checkbox' " + (data === "true" ? "checked" : "") + " onclick='enable($(this)," + row.DT_RowId + ");'/>";
+                            return "<input type='checkbox' " + (data ? "checked" : "") + " onclick='enable($(this)," + row.id + ");'/>";
                         }
                         return data;
                     }
@@ -57,6 +61,7 @@ $(function () {
                     "orderable": false
                 },
                 {
+                    "render": renderDeleteBtn,
                     "defaultContent": "Delete",
                     "orderable": false
                 }
@@ -68,7 +73,7 @@ $(function () {
                 ]
             ],
             "createdRow": function (row, data, dataIndex) {
-                if (data.enabled !== "true") {
+                if (!data.enabled) {
                     $(row).attr("data-user-enabled", false);
                 }
             }

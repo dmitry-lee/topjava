@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.web.meal;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.to.MealTo;
@@ -23,24 +24,24 @@ public class MealUIController extends AbstractMealController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable String id) {
-        super.delete(Integer.parseInt(id));
+    public void delete(@PathVariable int id) {
+        super.delete(id);
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public void create(@RequestParam String dateTime,
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void create(@RequestParam LocalDateTime dateTime,
                        @RequestParam String description,
-                       @RequestParam String calories) {
-        super.create(new Meal(LocalDateTime.parse(dateTime), description, Integer.parseInt(calories)));
+                       @RequestParam int calories) {
+        super.create(new Meal(dateTime, description, calories));
     }
 
     @Override
     @GetMapping("/filter")
-    public List<MealTo> getBetween(@RequestParam LocalDate startDate,
-                                   @RequestParam LocalTime startTime,
-                                   @RequestParam LocalDate endDate,
-                                   @RequestParam LocalTime endTime) {
+    public List<MealTo> getBetween(@RequestParam @Nullable LocalDate startDate,
+                                   @RequestParam @Nullable LocalTime startTime,
+                                   @RequestParam @Nullable LocalDate endDate,
+                                   @RequestParam @Nullable LocalTime endTime) {
         return super.getBetween(startDate, startTime, endDate, endTime);
     }
 }

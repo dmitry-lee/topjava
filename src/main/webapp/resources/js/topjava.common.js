@@ -27,14 +27,8 @@ function deleteRow(id) {
         url: ctx.ajaxUrl + id,
         type: "DELETE"
     }).done(function () {
-        updateTable();
+        ctx.updateTable();
         successNoty("Deleted");
-    });
-}
-
-function updateTable() {
-    $.get(ctx.ajaxUrl, function (data) {
-        ctx.datatableApi.clear().rows.add(data).draw();
     });
 }
 
@@ -81,4 +75,10 @@ function failNoty(jqXHR) {
         layout: "bottomRight"
     });
     failedNote.show()
+}
+
+function renderDeleteBtn(data, type, row) {
+    if (type === "display") {
+        return "<a onclick='deleteRow(" + row.id + ");'><span class='fa fa-remove'></span></a>";
+    }
 }

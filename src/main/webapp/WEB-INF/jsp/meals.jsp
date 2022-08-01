@@ -39,8 +39,8 @@
                     </div>
                 </form>
                 <div class="card-footer text-right">
-                    <div class="btn btn-danger">
-                        <span class="fa fa-remove" onclick="clearFilter()"></span>
+                    <div class="btn btn-danger" onclick="clearFilter()">
+                        <span class="fa fa-remove"></span>
                         <spring:message code="common.cancel"/>
                     </div>
                     <div class="btn btn-primary" onclick="ctx.updateTable()">
@@ -77,7 +77,6 @@
                     <td>${meal.description}</td>
                     <td>${meal.calories}</td>
                     <td><a href="meals/update?id=${meal.id}"><spring:message code="common.update"/></a></td>
-                        <%--                    <td><a href="meals/delete?id=${meal.id}"><spring:message code="common.delete"/></a></td>--%>
                     <td><a class="delete"><span class="fa fa-remove"></span></a></td>
                 </tr>
             </c:forEach>

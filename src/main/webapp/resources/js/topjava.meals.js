@@ -31,6 +31,7 @@ $(function () {
                     "orderable": false
                 },
                 {
+                    "render": renderDeleteBtn,
                     "defaultContent": "Delete",
                     "orderable": false
                 }
@@ -38,7 +39,7 @@ $(function () {
             "order": [
                 [
                     0,
-                    "asc"
+                    "desc"
                 ]
             ]
         })
