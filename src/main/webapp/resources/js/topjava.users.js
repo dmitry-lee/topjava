@@ -12,8 +12,8 @@ function enable(chkbox, id) {
     var enabled = chkbox.is(":checked");
 //  https://stackoverflow.com/a/22213543/548473
     $.ajax({
-        url: userAjaxUrl + id,
-        type: "POST",
+        url: userAjaxUrl + id + "?enabled=" + enabled,
+        type: "PATCH",
         data: "enabled=" + enabled
     }).done(function () {
         chkbox.closest("tr").attr("data-user-enabled", enabled);
