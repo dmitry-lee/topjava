@@ -28,10 +28,6 @@ function enable(chkbox, id) {
 $(function () {
     makeEditable(
         $("#datatable").DataTable({
-            "ajax": {
-                "url": ctx.ajaxUrl,
-                "dataSrc": ""
-            },
             "paging": false,
             "info": true,
             "columns": [
@@ -45,13 +41,7 @@ $(function () {
                     "data": "roles"
                 },
                 {
-                    "data": "enabled",
-                    "render": function (data, type, row) {
-                        if (type === "display") {
-                            return "<input type='checkbox' " + (data ? "checked" : "") + " onclick='enable($(this)," + row.id + ");'/>";
-                        }
-                        return data;
-                    }
+                    "data": "enabled"
                 },
                 {
                     "data": "registered"
@@ -61,7 +51,6 @@ $(function () {
                     "orderable": false
                 },
                 {
-                    "render": renderDeleteBtn,
                     "defaultContent": "Delete",
                     "orderable": false
                 }
@@ -71,12 +60,7 @@ $(function () {
                     0,
                     "asc"
                 ]
-            ],
-            "createdRow": function (row, data, dataIndex) {
-                if (!data.enabled) {
-                    $(row).attr("data-user-enabled", false);
-                }
-            }
+            ]
         })
     );
 });

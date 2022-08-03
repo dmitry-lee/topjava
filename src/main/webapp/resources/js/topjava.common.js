@@ -3,6 +3,9 @@ let form;
 function makeEditable(datatableApi) {
     ctx.datatableApi = datatableApi;
     form = $('#detailsForm');
+    $(".delete").click(function () {
+        deleteRow($(this).closest('tr').attr("id"));
+    });
 
     $(document).ajaxError(function (event, jqXHR, options, jsExc) {
         failNoty(jqXHR);
@@ -72,10 +75,4 @@ function failNoty(jqXHR) {
         layout: "bottomRight"
     });
     failedNote.show()
-}
-
-function renderDeleteBtn(data, type, row) {
-    if (type === "display") {
-        return "<a onclick='deleteRow(" + row.id + ");'><span class='fa fa-remove'></span></a>";
-    }
 }
