@@ -42,6 +42,7 @@ public abstract class AbstractMealController {
     }
 
     public Meal create(MealTo mealTo) {
+        checkNew(mealTo);
         return create(MealsUtil.createNewFromTo(mealTo));
     }
 
@@ -60,10 +61,7 @@ public abstract class AbstractMealController {
     }
 
     public void update(MealTo mealTo, int id) {
-        int userId = SecurityUtil.authUserId();
-        log.info("update {} for user {}", mealTo, userId);
-        assureIdConsistent(mealTo, id);
-        service.update(mealTo, userId);
+        update(MealsUtil.createNewFromTo(mealTo), id);
     }
 
     /**
