@@ -1,19 +1,24 @@
 package ru.javawebinar.topjava.util;
 
 
+import org.slf4j.Logger;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.BindingResult;
 import ru.javawebinar.topjava.HasId;
+import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ValidationUtil {
+
+    public static final String DUPLICATE_EMAIL = "exception.user.duplicateEmail";
 
     private static final Validator validator;
 
@@ -77,6 +82,16 @@ public class ValidationUtil {
         return rootCause != null ? rootCause : t;
     }
 
+    public static Throwable logAndGetRootCause(HttpServletRequest req, Throwable t, Logger log, boolean logException, ErrorType errorType) {
+        Throwable rootCause = getRootCause(t);
+        if (logException) {
+            log.error(errorType + " at request " + req.getRequestURL(), rootCause);
+        } else {
+            log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
+        }
+        return rootCause;
+    }
+
     public static ResponseEntity<String> getErrorResponse(BindingResult result) {
         return ResponseEntity.unprocessableEntity().body(
                 result.getFieldErrors().stream()
@@ -86,8 +101,6 @@ public class ValidationUtil {
     }
 
     public static String parseFieldErrors(BindingResult result) {
-        return result.getFieldErrors().stream()
-                .map(fe -> String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
-                .collect(Collectors.joining("<br>"));
+        return getErrorResponse(result).getBody();
     }
 }

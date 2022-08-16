@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,6 +29,12 @@ import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 public class ExceptionInfoHandler {
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
 
+    private final MessageSourceAccessor messageSourceAccessor;
+
+    public ExceptionInfoHandler(MessageSourceAccessor messageSourceAccessor) {
+        this.messageSourceAccessor = messageSourceAccessor;
+    }
+
     //  http://stackoverflow.com/a/22358422/548473
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(NotFoundException.class)
@@ -38,13 +45,24 @@ public class ExceptionInfoHandler {
     @ResponseStatus(HttpStatus.CONFLICT)  // 409
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
-        return logAndGetErrorInfo(req, e, true, DATA_ERROR);
+        String causeMessage = ValidationUtil.getRootCause(e).getMessage();
+        if (causeMessage.contains("users_unique_email_idx")) {
+            causeMessage = messageSourceAccessor.getMessage(ValidationUtil.DUPLICATE_EMAIL);
+        }
+        return logAndGetErrorInfo(req, e, true, DATA_ERROR, causeMessage);
     }
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)  // 422
-    @ExceptionHandler({IllegalRequestDataException.class, MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class, BindException.class})
+    @ExceptionHandler({IllegalRequestDataException.class, MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
     public ErrorInfo illegalRequestDataError(HttpServletRequest req, Exception e) {
         return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(BindException.class)
+    public ErrorInfo bindValidationError(HttpServletRequest req, BindException e) {
+        String details = ValidationUtil.parseFieldErrors(e.getBindingResult());
+        return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR, details);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -54,19 +72,12 @@ public class ExceptionInfoHandler {
     }
 
     //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
-    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
-        Throwable rootCause = ValidationUtil.getRootCause(e);
-        if (logException) {
-            log.error(errorType + " at request " + req.getRequestURL(), rootCause);
-        } else {
-            log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
-        }
-        String detail;
-        if (VALIDATION_ERROR.equals(errorType)) {
-            detail = ValidationUtil.parseFieldErrors(((BindException) e).getBindingResult());
-        } else {
-            detail = rootCause.toString();
-        }
-        return new ErrorInfo(req.getRequestURL(), errorType, detail);
+    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType, String detail) {
+        Throwable rootCause = ValidationUtil.logAndGetRootCause(req, e, log, logException, errorType);
+        return new ErrorInfo(req.getRequestURL(), errorType, detail.isEmpty() ? rootCause.getMessage() : detail);
+    }
+
+    public static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
+        return logAndGetErrorInfo(req, e, logException, errorType, "");
     }
 }
