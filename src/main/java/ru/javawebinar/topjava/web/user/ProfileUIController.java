@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.web.user;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.support.SessionStatus;
 import ru.javawebinar.topjava.to.UserTo;
+import ru.javawebinar.topjava.util.ValidationUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import javax.validation.Valid;
@@ -26,10 +28,15 @@ public class ProfileUIController extends AbstractUserController {
         if (result.hasErrors()) {
             return "profile";
         } else {
-            super.update(userTo, SecurityUtil.authUserId());
-            SecurityUtil.get().setTo(userTo);
-            status.setComplete();
-            return "redirect:/meals";
+            try {
+                super.update(userTo, SecurityUtil.authUserId());
+                SecurityUtil.get().setTo(userTo);
+                status.setComplete();
+                return "redirect:/meals";
+            } catch (DataIntegrityViolationException exception) {
+                result.rejectValue("email", ValidationUtil.DUPLICATE_EMAIL);
+                return "profile";
+            }
         }
     }
 
@@ -46,9 +53,15 @@ public class ProfileUIController extends AbstractUserController {
             model.addAttribute("register", true);
             return "profile";
         } else {
-            super.create(userTo);
-            status.setComplete();
-            return "redirect:/login?message=app.registered&username=" + userTo.getEmail();
+            try {
+                super.create(userTo);
+                status.setComplete();
+                return "redirect:/login?message=app.registered&username=" + userTo.getEmail();
+            } catch (DataIntegrityViolationException exception) {
+                result.rejectValue("email", ValidationUtil.DUPLICATE_EMAIL);
+                model.addAttribute("register", true);
+                return "profile";
+            }
         }
     }
 }
